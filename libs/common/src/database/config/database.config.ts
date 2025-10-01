@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/user.entity';
+import { Z_ASCII } from 'zlib';
 
 export const databaseConfig = (
   configService: ConfigService,

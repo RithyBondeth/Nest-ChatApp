@@ -1,4 +1,5 @@
-import { Column, Entity, ObjectId, ObjectIdColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, Index, ObjectId, ObjectIdColumn } from "typeorm";
+import { TChatStatus } from "@app/common/types/status.type";
 
 @Entity('user')
 export class UserEntity {
@@ -6,14 +7,22 @@ export class UserEntity {
     id: ObjectId
 
     @Column()
-    name: string
+    @Index({ unique: true })
+    username: string
 
     @Column()
+    @Index({ unique: true })
     email: string
+
+    @Column() 
+    password: string
+
+    @Column({ default: TChatStatus.ONLINE })
+    status: TChatStatus
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date
 
-    @UpdateDateColumn()
-    updatedAt: Date
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    lastSeen: Date
 }
