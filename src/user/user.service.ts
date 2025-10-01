@@ -38,4 +38,24 @@ export class UserService {
     await this.userRepository.save(user);
     return user;
   }
+
+  async updateUserById(userId: string, userData: Partial<UserEntity>): Promise<UserEntity> {
+    const user = await this.userRepository.findOneBy({
+        _id: new ObjectId(userId)
+    } as any);
+
+    if(!user) throw new NotFoundException('User not found');
+
+    if(userData.email && userData.email !== user.email) {
+        const existingUser = await this.userRepository.findOne({
+            where: { email: userData.email }
+        });
+        if (existingUser) throw new BadRequestException('Email already exists');
+    }
+
+    Object.assign(user, userData);
+    await this.userRepository.save(user);
+
+    return user;
+  }
 }

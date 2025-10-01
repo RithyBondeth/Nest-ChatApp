@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserEntity } from '@app/common/database/entities/user.entity';
 
@@ -18,14 +12,20 @@ export class UserController {
   }
 
   @Get('one/:userId')
-  async findOneUserById(
-    @Param('userId') userId: string,
-  ): Promise<UserEntity> {
+  async findOneUserById(@Param('userId') userId: string): Promise<UserEntity> {
     return this.userService.findOneUserById(userId);
   }
 
   @Post('create')
   async createUser(@Body() userData: Partial<UserEntity>): Promise<UserEntity> {
     return this.userService.createUser(userData);
+  }
+
+  @Patch('update/:userId')
+  async updateUserById(
+    @Param('userId') userId: string,
+    @Body() userData: Partial<UserEntity>,
+  ): Promise<UserEntity> {
+    return this.userService.updateUserById(userId, userData);
   }
 }
