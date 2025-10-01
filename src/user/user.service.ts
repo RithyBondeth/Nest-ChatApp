@@ -1,22 +1,41 @@
 import { UserEntity } from '@app/common/database/entities/user.entity';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class UserService {
-    constructor(@InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>) {}
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+  ) {}
 
-    async findAllUser() {
-        return this.userRepository.find()
-    }
+  async findAllUser(): Promise<UserEntity[]> {
+    const users = await this.userRepository.find();
+    if (!users) throw new NotFoundException('Users not found');
+    return users;
+  }
 
-    async createUser(userData: Partial<UserEntity>): Promise<UserEntity> {
-        let user = await this.userRepository.findOne({ where: { email: userData.email } });
-        if(user) 
-            throw new BadRequestException('Email already exists');
-        user = this.userRepository.create(userData);
-        await this.userRepository.save(user);
-        return user;
-    }
+  async findOneUserById(userId: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOneBy({
+      _id: new ObjectId(userId),
+    } as any);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
+  async createUser(userData: Partial<UserEntity>): Promise<UserEntity> {
+    let user = await this.userRepository.findOne({
+      where: { email: userData.email },
+    });
+    if (user) throw new BadRequestException('Email already exists');
+    user = this.userRepository.create(userData);
+    await this.userRepository.save(user);
+    return user;
+  }
 }
