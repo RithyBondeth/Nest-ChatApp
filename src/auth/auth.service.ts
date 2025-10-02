@@ -40,6 +40,7 @@ export class AuthService {
       ]);
 
       return {
+        message: "Registered successfully",
         user,
         accessToken,
         refreshToken,
@@ -75,6 +76,7 @@ export class AuthService {
       ]);
 
       return {
+        message: "Logged in successfully",
         user,
         accessToken,
         refreshToken,
