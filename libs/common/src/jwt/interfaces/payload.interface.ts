@@ -1,5 +1,7 @@
+import { ObjectId } from "typeorm";
+
 export interface IPayload {
-    id: string;
+    id: ObjectId;
     username: string;
     exp?: number;
     iat?: number;
