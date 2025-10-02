@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RegisterDataDTO } from './dtos/register.dto';
 import { IPayload } from '@app/common/jwt/interfaces/payload.interface';
+import { LoginDTO } from './dtos/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -37,5 +38,13 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+  
+  async login(loginData: LoginDTO) {
+    try {
+
+    } catch (error) {
+
+    }
   }
 }
