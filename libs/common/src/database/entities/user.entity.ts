@@ -1,5 +1,5 @@
 import { Column, Entity, Index, ObjectId, ObjectIdColumn } from "typeorm";
-import { TChatStatus } from "@app/common/types/status.type";
+import { TChatStatus } from "@app/common/database/types/status.type";
 
 @Entity('user')
 export class UserEntity {
