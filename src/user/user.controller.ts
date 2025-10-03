@@ -11,9 +11,21 @@ export class UserController {
     return this.userService.findAllUser();
   }
 
-  @Get('one/:userId')
+  @Get('id/:userId')
   async findOneUserById(@Param('userId') userId: string): Promise<UserEntity> {
     return this.userService.findOneUserById(userId);
+  }
+
+  @Get('username/:username')
+  async findOneUserByUsername(
+    @Param('username') username: string,
+  ): Promise<UserEntity> {
+    return this.userService.findOneUserByUsername(username);
+  }
+
+  @Get('email/:email')
+  async findOneUserByEmail(@Param('email') email: string): Promise<UserEntity> {
+    return this.userService.findOneUserByEmail(email);
   }
 
   @Post('create')

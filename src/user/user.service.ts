@@ -29,6 +29,20 @@ export class UserService {
     return user;
   }
 
+  async findOneUserByUsername(username: string): Promise<UserEntity> {
+    try {
+        const user = await this.userRepository.findOneBy({
+          username: username 
+        });
+        if(!user) throw new NotFoundException('User not found');
+        return user;
+    } catch (error) {
+        throw new BadRequestException('Failed to find user by username');
+    }
+  }
+
+  async findOneUserByEmail(email: string): Promise<any> {}
+
   async createUser(userData: Partial<UserEntity>): Promise<UserEntity> {
     let user = await this.userRepository.findOne({
       where: { email: userData.email },
