@@ -49,7 +49,16 @@ export class UserService {
     }
   }
 
-  async findOneUserByEmail(email: string): Promise<any> {}
+  async findOneUserByEmail(email: string): Promise<UserEntity> {
+    try {
+      const user = await this.userRepository.findOneBy({ email: email });
+      if (!user) throw new NotFoundException('User not found');
+
+      return user;
+    } catch (error) {
+      throw new BadRequestException('Failed to find user by email');
+    }
+  }
 
   async createUser(userData: Partial<UserEntity>): Promise<UserEntity> {
     try {
@@ -88,7 +97,7 @@ export class UserService {
 
       return user;
     } catch (error) {
-        throw new BadRequestException('Failed to update user by id');
+      throw new BadRequestException('Failed to update user by id');
     }
   }
 }
