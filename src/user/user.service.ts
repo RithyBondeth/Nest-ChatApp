@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ObjectId } from 'mongodb';
+import { TChatStatus } from '@app/common/database/enums/status.type';
 
 @Injectable()
 export class UserService {
@@ -99,5 +100,16 @@ export class UserService {
     } catch (error) {
       throw new BadRequestException('Failed to update user by id');
     }
+  }
+
+  async updateStatus(userId: string, status: TChatStatus) {
+    try {
+      const user = await this.findOneUserById(userId);
+      user.status = status;
+      user.lastSeen = new Date();
+    } catch (error) {
+      throw new BadRequestException('Failed to update status');
+    }
+
   }
 }
