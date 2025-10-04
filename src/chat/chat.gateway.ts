@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@app/common/jwt/jwt.service';
 import { IPayload } from '@app/common/jwt/interfaces/payload.interface';
 import { UserService } from 'src/user/user.service';
+import { TChatStatus } from '@app/common/database/enums/status.type';
 
 @WebSocketGateway({
   cors: {
@@ -17,10 +18,10 @@ import { UserService } from 'src/user/user.service';
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  server: Server
+  server: Server;
 
   private readonly userSockets: Map<string, string> = new Map(); // userID -> socketID
-  
+
   constructor(
     private readonly chatService: ChatService,
     private readonly jwtService: JwtService,
@@ -44,6 +45,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.data.userId = userId;
       client.data.name = payload.username;
 
+      await this.userService.updateStatus(
+        userId.toString(),
+        TChatStatus.ONLINE,
+      );
+
+      //Join user's room
     } catch (error) {}
   }
 
