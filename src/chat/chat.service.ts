@@ -118,9 +118,22 @@ export class ChatService {
 
       return messages;
     } catch (error) {
-        throw new BadRequestException('Failed to find room message');
+      throw new BadRequestException('Failed to find room message');
     }
   }
 
-  async markMessageAsRead(roomId: string, userId: string): Promise<void> {}
+  async markMessageAsRead(messageId: string, userId: string): Promise<void> {
+    try {
+      const message = await this.messageRepository.findOneBy({
+        _id: new ObjectId(messageId),
+      } as any);
+
+      if (message && !message.readBy.some((id) => id.toString() === userId)) {
+        message.readBy.push(new ObjectId(userId));
+        await this.messageRepository.save(message);
+      }
+    } catch (error) {
+      throw new BadRequestException('Failed to mark message as read');
+    }
+  }
 }
