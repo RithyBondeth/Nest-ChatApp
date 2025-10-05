@@ -136,4 +136,21 @@ export class ChatService {
       throw new BadRequestException('Failed to mark message as read');
     }
   }
+
+  async markRoomMessageAsRead(roomId: string, userId: string): Promise<void> {
+    try {
+      const messages = await this.messageRepository.find({
+        where: { roomId: new ObjectId(roomId) } as any,
+      });
+
+      for (const message of messages) {
+        if (!message.readBy.some((id) => id.toString() === userId))
+          message.readBy.push(new ObjectId(userId));
+      }
+
+      await this.messageRepository.save(messages);
+    } catch (error) {
+      throw new BadRequestException('Failed to mark room message as read');
+    }
+  }
 }
