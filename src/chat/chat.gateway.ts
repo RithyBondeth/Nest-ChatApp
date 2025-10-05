@@ -51,8 +51,26 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
 
       //Join user's room
-    } catch (error) {}
+      const rooms = await this.chatService.findUserRooms(userId.toString());
+      rooms.forEach((room) => {
+        client.join(room.id.toString());
+      });
+
+      this.server.emit('userOnline', { userId, username: payload.username });
+      console.log(`Client connected: ${client.id}, User: ${payload.username}`);
+    } catch (error) {
+      console.log(`Connection error: ${error.message}`);
+      client.disconnect();
+    }
   }
 
-  async handleDisconnect(client: any) {}
+  async handleDisconnect(client: Socket) {
+    const userId = client.data.userId;
+    if(userId) {
+      this.userSockets.delete(userId);
+      await this.userService.updateStatus(userId, TChatStatus.OFFLINE);
+      this.server.emit('userOffline', { userId });
+    }
+    console.log(`Client disconnected: ${client.id}`);
+  }
 }
