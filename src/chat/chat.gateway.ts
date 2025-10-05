@@ -1,6 +1,9 @@
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -66,11 +69,73 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(client: Socket) {
     const userId = client.data.userId;
-    if(userId) {
+    if (userId) {
       this.userSockets.delete(userId);
       await this.userService.updateStatus(userId, TChatStatus.OFFLINE);
       this.server.emit('userOffline', { userId });
     }
     console.log(`Client disconnected: ${client.id}`);
+  }
+
+  @SubscribeMessage('sendMessage')
+  async handleMessage(
+    @MessageBody() data: { roomId: string; content: string; type?: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const userId = client.data.userId;
+    const username = client.data.username;
+
+    const message = await this.chatService.createMessage(
+      data.roomId,
+      userId,
+      username,
+      data.content,
+      data.type || 'text',
+    );
+
+    // Emit to all users in the room
+    this.server.to(data.roomId).emit('newMessage', {
+      id: message.id.toString(),
+      roomId: message.roomId.toString(),
+      senderId: message.senderId.toString(),
+      senderName: message.senderName,
+      content: message.content,
+      type: message.type,
+      createdAt: message.createdAt,
+    });
+
+    return { success: true, message };
+  }
+
+  @SubscribeMessage('joinRoom')
+  async handleJoinRoom(
+    @MessageBody() data: { roomId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.join(data.roomId);
+
+    const messages = await this.chatService.findRoomMessage(data.roomId);
+
+    return {
+      success: true,
+      message: messages.reverse().map((msg) => ({
+        id: msg.id.toString(),
+        roomId: msg.roomId.toString(),
+        senderId: msg.senderId.toString(),
+        senderName: msg.senderName,
+        content: msg.content,
+        type: msg.type,
+        createdAt: msg.createdAt,
+      })),
+    };
+  }
+
+  @SubscribeMessage('leaveRoom')
+  async handleLeaveRoom(
+    @MessageBody() data: { roomId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.leave(data.roomId);
+    return { success: true };
   }
 }
