@@ -98,10 +98,29 @@ export class ChatService {
         type,
         readBy: [new ObjectId(senderId)],
       });
-
+      await this.messageRepository.save(message);
       return message;
     } catch (error) {
       throw new BadRequestException('Failed to create message');
     }
   }
+
+  async findRoomMessage(
+    roomId: string,
+    limit: number = 50,
+  ): Promise<MessageEntity[]> {
+    try {
+      const messages = await this.messageRepository.find({
+        where: { roomId: new ObjectId(roomId) } as any,
+        order: { createdAt: 'DESC' },
+        take: limit,
+      });
+
+      return messages;
+    } catch (error) {
+        throw new BadRequestException('Failed to find room message');
+    }
+  }
+
+  async markMessageAsRead(roomId: string, userId: string): Promise<void> {}
 }
