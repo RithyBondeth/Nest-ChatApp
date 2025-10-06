@@ -137,7 +137,7 @@ export class ChatService {
     }
   }
 
-  async markRoomMessageAsRead(roomId: string, userId: string): Promise<void> {
+  async markRoomMessagesAsRead(roomId: string, userId: string): Promise<void> {
     try {
       const messages = await this.messageRepository.find({
         where: { roomId: new ObjectId(roomId) } as any,
